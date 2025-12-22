@@ -1,5 +1,5 @@
 name: "ML Heating Control (Dev)"
-version: "0.1.0-dev"
+version: "dev"
 image: "ghcr.io/jhilkert90-wq/ml_heating:dev"
 slug: "ml_heating_dev"
 description: "Physics-based machine learning heating control system with online learning (Development Channel)"
