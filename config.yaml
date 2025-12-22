@@ -321,8 +321,8 @@ schema:
   # ML Heating Control Entity - String type
   ml_heating_control_entity: "str"
   # Thermal Equilibrium Model Parameters - Float types with physics-based ranges
-  thermal_time_constant: "float(4.0,96.0)"
-  heat_loss_coefficient: "float(0.005,0.25)"
+  thermal_time_constant: "float(2.0,96.0)"
+  heat_loss_coefficient: "float(0.005,2.0)"
   outlet_effectiveness: "float(0.01,1.5)"
   outdoor_coupling: "float(0.1,0.8)"
   thermal_bridge_factor: "float(0.01,0.5)"
