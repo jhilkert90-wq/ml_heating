@@ -50,12 +50,13 @@ RUN apk add --no-cache \
 
 # Install bashio for Home Assistant addon support
 RUN curl -L -s -o /tmp/bashio.tar.gz \
-    "https://github.com/hassio-addons/bashio/archive/v0.18.0.tar.gz" \
+    "https://github.com/hassio-addons/bashio/archive/refs/tags/v0.17.5.tar.gz" \
     && mkdir /tmp/bashio \
-    && tar zxf /tmp/bashio.tar.gz -C /tmp/bashio --strip-components 1 \
+    && tar xzf /tmp/bashio.tar.gz -C /tmp/bashio --strip-components 1 \
     && mv /tmp/bashio/lib /usr/lib/bashio \
     && ln -s /usr/lib/bashio/bashio /usr/bin/bashio \
     && rm -rf /tmp/bashio.tar.gz /tmp/bashio
+
 
 
 # Set working directory
