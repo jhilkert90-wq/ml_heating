@@ -45,8 +45,8 @@ class ThermalParameterManager:
         
         # CONFLICT RESOLVED: Use thermal_config.py value (0.2) over config.py (0.1)
         'heat_loss_coefficient': ParameterInfo(
-            default=0.2,  # Resolution: More realistic for moderate insulation
-            bounds=(0.002, 0.25),
+            default=1.2,  # Resolution: More realistic for moderate insulation
+            bounds=(0.002, 12),
             description='Heat loss rate per degree difference',
             unit='1/hour',
             env_var='HEAT_LOSS_COEFFICIENT'
@@ -54,7 +54,7 @@ class ThermalParameterManager:
         
         # CONFLICT RESOLVED: Use thermal_config.py calibrated value
         'outlet_effectiveness': ParameterInfo(
-            default=0.04,  # Resolution: Calibrated TDD value vs 0.1 in config.py
+            default=0.49,  # Resolution: Calibrated TDD value vs 0.1 in config.py
             bounds=(0.01, 0.5),  # Resolution: Realistic max vs 1.0 in thermal_constants
             description='Heat pump outlet efficiency',
             unit='dimensionless',
