@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 python:3.11-alpine3.18
+FROM python:3.11-alpine3.18
 
 # Build arguments
 ARG BUILD_ARCH
