@@ -1,12 +1,11 @@
 name: "ML Heating Control (Dev)"
-version: "0.1.0-dev"
+version: "dev"
 image: "ghcr.io/jhilkert90-wq/ml_heating:dev"
-slug: "ml_heating_dev"
+slug: "ml_heating"
 description: "Physics-based machine learning heating control system with online learning (Development Channel)"
 url: "https://github.com/jhilkert90-wq/ml_heating"
 arch:
   - aarch64
-  - amd64
 startup: services
 init: false
 map:
