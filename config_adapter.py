@@ -76,13 +76,13 @@ def convert_addon_to_env(config):
         'LEARNING_RATE': str(config.get('learning_rate', 0.01)),
         'PREDICTION_HORIZON_MINUTES': str(config.get('prediction_horizon_minutes', 30)),
         'CYCLE_INTERVAL_MINUTES': str(config.get('cycle_interval_minutes', 30)),
-        'MAX_TEMP_CHANGE_PER_CYCLE': str(config.get('max_temp_change_per_cycle', 2.0)),
+        'MAX_TEMP_CHANGE_PER_CYCLE': str(config.get('max_temp_change_per_cycle', 5.0)),
         
         # Safety configuration
         'SAFETY_MAX_TEMP': str(config.get('safety_max_temp', 25.0)),
         'SAFETY_MIN_TEMP': str(config.get('safety_min_temp', 18.0)),
-        'CLAMP_MIN_ABS': str(config.get('clamp_min_abs', 14.0)),
-        'CLAMP_MAX_ABS': str(config.get('clamp_max_abs', 65.0)),
+        'CLAMP_MIN_ABS': str(config.get('clamp_min_abs', 20.0)),
+        'CLAMP_MAX_ABS': str(config.get('clamp_max_abs', 35.0)),
         
         # External heat sources (optional)
         'PV_POWER_ENTITY_ID': config.get('pv_power_entity', ''),
@@ -90,14 +90,14 @@ def convert_addon_to_env(config):
         'TV_POWER_ENTITY_ID': config.get('tv_power_entity', ''),
         
         # InfluxDB configuration  
-        'INFLUXDB_HOST': config.get('influxdb_host', 'a0d7b954-influxdb'),
-        'INFLUXDB_PORT': str(config.get('influxdb_port', 8086)),
-        'INFLUXDB_DATABASE': config.get('influxdb_database', 'homeassistant'),
+        'INFLUXDB_HOST': config.get('influxdb_host', 'http://192.168.0.223:8089'),
+        'INFLUXDB_PORT': str(config.get('influxdb_port', 8089)),
+        'INFLUXDB_DATABASE': config.get('influxdb_database', 'home_assistant'),
         'INFLUXDB_USERNAME': config.get('influxdb_username', ''),
         'INFLUXDB_PASSWORD': config.get('influxdb_password', ''),
         'INFLUXDB_TOKEN': config.get('influxdb_token', ''),
         'INFLUXDB_ORG': config.get('influxdb_org', ''),
-        'INFLUXDB_BUCKET': config.get('influxdb_bucket', 'homeassistant'),
+        'INFLUXDB_BUCKET': config.get('influxdb_bucket', 'home_assistant'),
         
         # Blocking detection entities
         'DHW_STATUS_ENTITY_ID': config.get('dhw_status_entity', ''),
