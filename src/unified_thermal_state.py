@@ -313,8 +313,6 @@ class ThermalStateManager:
                 last_run_features = last_run_features.to_dict()
 
             operational["last_run_features"] = last_run_features
-            # DEBUG: Zeige, wie last_run_features jetzt aussieht
-            print("DEBUG: last_run_features processed:", last_run_features)
 
 
             # Automatisch Felder aus last_run_features übernehmen
