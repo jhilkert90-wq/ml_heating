@@ -91,7 +91,7 @@ options:
   # The InfluxDB database where your Home Assistant data is stored
   influxdb_database: "home_assistant"
   # An InfluxDB API token with read access to the specified bucket
-  influxdb_token: ""
+  influxdb_token: "VmGuemi0CQS8keH1SIdiaBFgkQcWiaYvdtRhLcKhdLPtkRhWnfbBcJCbWdVIKjRAiSQZU89Juvds6OsES-SLfg=="
   # The InfluxDB organization your Home Assistant data belongs to
   influxdb_org: "home"
   # The InfluxDB bucket where your Home Assistant data is stored
