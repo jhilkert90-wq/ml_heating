@@ -3,7 +3,7 @@ version: "0.1.0-dev"
 image: "ghcr.io/helgeerbe/ml_heating:dev"
 slug: "ml_heating_dev"
 description: "Physics-based machine learning heating control system with online learning (Development Channel)"
-url: "https://github.com/helgeerbe/ml_heating"
+url: "https://github.com/jhilkert90-wq/ml_heating"
 arch:
   - aarch64
   - amd64
