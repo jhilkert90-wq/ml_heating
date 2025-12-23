@@ -129,7 +129,7 @@ class ThermalParameterManager:
         ),
         
         'max_learning_rate': ParameterInfo(
-            default=0.2,
+            default=0.3,
             bounds=(0.1, 1.0),
             description='Maximum learning rate',
             unit='dimensionless',
