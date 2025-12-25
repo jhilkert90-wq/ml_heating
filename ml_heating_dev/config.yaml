@@ -1,6 +1,6 @@
 name: "ML Heating Control (Dev)"
-version: "0.1.0-alpha.41"
-image: "ghcr.io/helgeerbe/ml_heating"
+version: "dev"
+image: "ghcr.io/jhilkert90-wq/ml_heating"
 slug: "ml_heating_dev"
 description: "Physics-based machine learning heating control system with online learning (Development Channel)"
 url: "https://github.com/jhilkert90-wq/ml_heating"
@@ -40,7 +40,7 @@ options:
   # An external weather forecast temperature sensor (e.g., from OpenWeatherMap)
   openweathermap_temp_entity: "weather.home"
   # A sensor that provides the average temperature of rooms not affected by the fireplace
-  avg_other_rooms_temp_entity: "sensor.rt_flur_og"
+  avg_other_rooms_temp_entity: "sensor.current_rt"
   # The Home Assistant sensor that provides today's PV forecast with attributes
   pv_forecast_entity: "sensor.ml_pv_forecast_watts"
   
@@ -48,9 +48,9 @@ options:
   # A single aggregated sensor for total PV power generation
   pv_power_entity: "sensor.evcc_pv_power"
   # A binary_sensor that is 'on' when the fireplace is active
-  fireplace_status_entity: "binary_sensor.fireplace_sensor"
+  fireplace_status_entity: "binary_sensor.kamin_an"
   # A sensor or input_boolean that indicates if a TV or other significant internal heat source is on
-  tv_power_entity: "binary_sensor.kamin_an"
+  tv_power_entity: "binary_sensor.bad_og_heizkorper"
   
   # Blocking Detection - Entity IDs for system status monitoring
   # A binary_sensor that is 'on' when Domestic Hot Water (DHW) is being heated
@@ -72,7 +72,7 @@ options:
   # The duration of each historical step in minutes
   history_step_minutes: 10
   # The number of hours of historical data to use for initial training
-  training_lookback_hours: 576
+  training_lookback_hours: 2000
   
   # Safety Configuration - Temperature limits and safety bounds
   # The maximum safe indoor temperature allowed by the system
@@ -80,7 +80,7 @@ options:
   # The minimum safe indoor temperature allowed by the system
   safety_min_temp: 18.0
   # Absolute minimum allowed outlet temperature (in °C)
-  clamp_min_abs: 20.0
+  clamp_min_abs: 22.0
   # Absolute maximum allowed outlet temperature (in °C)
   clamp_max_abs: 35.0
   
