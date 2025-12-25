@@ -76,7 +76,7 @@ def convert_addon_to_env(config):
         'LEARNING_RATE': str(config.get('learning_rate', 0.01)),
         'PREDICTION_HORIZON_MINUTES': str(config.get('prediction_horizon_minutes', 30)),
         'CYCLE_INTERVAL_MINUTES': str(config.get('cycle_interval_minutes', 30)),
-        'MAX_TEMP_CHANGE_PER_CYCLE': str(config.get('max_temp_change_per_cycle', 5.0)),
+        'MAX_TEMP_CHANGE_PER_CYCLE': str(config.get('max_temp_change_per_cycle', 7.0)),
         
         # Safety configuration
         'SAFETY_MAX_TEMP': str(config.get('safety_max_temp', 25.0)),
@@ -118,7 +118,7 @@ def convert_addon_to_env(config):
         'SEASONAL_LEARNING_ENABLED': str(config.get('seasonal_learning_enabled', True)),
         
         # Logging and development
-        'LOG_LEVEL': config.get('log_level', 'INFO'),
+        'LOG_LEVEL': config.get('log_level', 'DEBUG'),
         'ENABLE_DEV_API': str(config.get('enable_dev_api', False)),
         'DEV_API_KEY': config.get('dev_api_key', ''),
         
@@ -134,8 +134,8 @@ def convert_addon_to_env(config):
         # Core ML parameters mapping to existing core variables
         'HISTORY_STEPS': str(config.get('history_steps', 6)),
         'HISTORY_STEP_MINUTES': str(config.get('history_step_minutes', 10)),
-        'TRAINING_LOOKBACK_HOURS': str(config.get('training_lookback_hours', 168)),
-        'PREDICTION_HORIZON_STEPS': str(config.get('prediction_horizon_steps', 24)),
+        'TRAINING_LOOKBACK_HOURS': str(config.get('training_lookback_hours', 720)),
+        'PREDICTION_HORIZON_STEPS': str(config.get('prediction_horizon_steps', 48)),
         
         # Advanced Learning Features - Multi-lag learning
         'ENABLE_MULTI_LAG_LEARNING': str(config.get('enable_multi_lag_learning', True)),
@@ -155,7 +155,7 @@ def convert_addon_to_env(config):
         'INFLUX_FEATURES_BUCKET': config.get('influx_features_bucket', 'ml_heating_features'),
         
         # System Behavior
-        'GRACE_PERIOD_MAX_MINUTES': str(config.get('grace_period_max_minutes', 30)),
+        'GRACE_PERIOD_MAX_MINUTES': str(config.get('grace_period_max_minutes', 2)),
         'BLOCKING_POLL_INTERVAL_SECONDS': str(config.get('blocking_poll_interval_seconds', 60)),
     }
     
