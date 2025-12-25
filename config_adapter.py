@@ -81,7 +81,7 @@ def convert_addon_to_env(config):
         # Safety configuration
         'SAFETY_MAX_TEMP': str(config.get('safety_max_temp', 25.0)),
         'SAFETY_MIN_TEMP': str(config.get('safety_min_temp', 18.0)),
-        'CLAMP_MIN_ABS': str(config.get('clamp_min_abs', 20.0)),
+        'CLAMP_MIN_ABS': str(config.get('clamp_min_abs', 22.0)),
         'CLAMP_MAX_ABS': str(config.get('clamp_max_abs', 35.0)),
         
         # External heat sources (optional)
