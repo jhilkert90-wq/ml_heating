@@ -36,13 +36,14 @@ if _is_addon_environment():
     HASS_URL: str = os.getenv("HASS_URL", "http://supervisor/core")
     HASS_TOKEN: str = os.getenv("SUPERVISOR_TOKEN", "").strip()
 else:
-    HASS_URL: str = os.getenv("HASS_URL", "http://192.168.0.23:8123")
-    HASS_TOKEN: str = os.getenv("HASS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlNmRhN2Q2NjQyNjM0OGQzYWEzNTJkNjRhYzY5OGJiNyIsImlhdCI6MTc2NTkyOTA0OSwiZXhwIjoyMDgxMjg5MDQ5fQ.RlyByE3tKsyAZzwPLHxKMhaqwpVgspr1LTOM4yDqN-w").strip()
+    HASS_URL: str = os.getenv("HASS_URL", "http://localhost:8123")
+    HASS_TOKEN: str = os.getenv("HASS_TOKEN", "").strip()
 
 HASS_HEADERS: dict[str, str] = {
     "Authorization": f"Bearer {HASS_TOKEN}",
     "Content-Type": "application/json",
 }
+
 INFLUX_URL: str = os.getenv("INFLUX_URL", "http://192.168.0.223:8089")
 INFLUX_TOKEN: str = os.getenv("INFLUX_TOKEN", "")
 INFLUX_ORG: str = os.getenv("INFLUX_ORG", "home")
@@ -73,11 +74,11 @@ HISTORY_STEPS: int = int(os.getenv("HISTORY_STEPS", "6"))
 HISTORY_STEP_MINUTES: int = int(os.getenv("HISTORY_STEP_MINUTES", "10"))
 # Prediction horizon used during calibration to determine future target.
 PREDICTION_HORIZON_STEPS: int = int(
-    os.getenv("PREDICTION_HORIZON_STEPS", "24")
+    os.getenv("PREDICTION_HORIZON_STEPS", "48")
 )
 # The number of hours of historical data to use for initial training.
 TRAINING_LOOKBACK_HOURS: int = int(
-    os.getenv("TRAINING_LOOKBACK_HOURS", "168")
+    os.getenv("TRAINING_LOOKBACK_HOURS", "2000")
 )
 
 # --- Core Entity IDs ---
@@ -95,7 +96,7 @@ TARGET_INDOOR_TEMP_ENTITY_ID: str = os.getenv(
     "input_number.soll_rt",
 )
 INDOOR_TEMP_ENTITY_ID: str = os.getenv(
-    "INDOOR_TEMP_ENTITY_ID", "sensor.rt_mittelwert"
+    "INDOOR_TEMP_ENTITY_ID", "sensor.current_rt"
 )
 ACTUAL_OUTLET_TEMP_ENTITY_ID: str = os.getenv(
     "ACTUAL_OUTLET_TEMP_ENTITY_ID", "sensor.nibe_bt2_supply_temp_s1"
@@ -118,7 +119,7 @@ DHW_STATUS_ENTITY_ID: str = os.getenv(
     "DHW_STATUS_ENTITY_ID", "binary_sensor.warmwassermodus"
 )
 DEFROST_STATUS_ENTITY_ID: str = os.getenv(
-    "DEFROST_STATUS_ENTITY_ID", "sensor.nibe_eb101_ep14_defrosting_outdoor_unit"
+    "DEFROST_STATUS_ENTITY_ID", "binary_sensor.defrost_wp"
 )
 DISINFECTION_STATUS_ENTITY_ID: str = os.getenv(
     "DISINFECTION_STATUS_ENTITY_ID",
@@ -153,7 +154,7 @@ OPENWEATHERMAP_TEMP_ENTITY_ID: str = os.getenv(
     "OPENWEATHERMAP_TEMP_ENTITY_ID", "weather.home"
 )
 AVG_OTHER_ROOMS_TEMP_ENTITY_ID: str = os.getenv(
-    "AVG_OTHER_ROOMS_TEMP_ENTITY_ID", "sensor.rt_flur_og"
+    "AVG_OTHER_ROOMS_TEMP_ENTITY_ID", "sensor.current_rt"
 )
 FIREPLACE_STATUS_ENTITY_ID: str = os.getenv(
     "FIREPLACE_STATUS_ENTITY_ID", "binary_sensor.kamin_an"
@@ -178,13 +179,13 @@ FIREPLACE_STATUS_ENTITY_ID: str = os.getenv(
 DEBUG: bool = os.getenv("DEBUG", "0") == "1"
 CONFIDENCE_THRESHOLD: float = float(os.getenv("CONFIDENCE_THRESHOLD", "0.2"))
 TRAJECTORY_STEPS: int = int(os.getenv("TRAJECTORY_STEPS", "4"))
-CYCLE_INTERVAL_MINUTES: int = int(os.getenv("CYCLE_INTERVAL_MINUTES", "10"))
+CYCLE_INTERVAL_MINUTES: int = int(os.getenv("CYCLE_INTERVAL_MINUTES", "30"))
 MAX_TEMP_CHANGE_PER_CYCLE: int = int(
-    os.getenv("MAX_TEMP_CHANGE_PER_CYCLE", "2")
+    os.getenv("MAX_TEMP_CHANGE_PER_CYCLE", "7")
 )
 # Maximum minutes to wait during the grace period after blocking ends.
 GRACE_PERIOD_MAX_MINUTES: int = int(
-    os.getenv("GRACE_PERIOD_MAX_MINUTES", "30")
+    os.getenv("GRACE_PERIOD_MAX_MINUTES", "2")
 )
 
 # How often (seconds) to poll blocking entities during the idle period.
@@ -203,8 +204,8 @@ RMSE_ENTITY_ID: str = os.getenv("RMSE_ENTITY_ID", "sensor.ml_model_rmse")
 # --- Clamping (absolute) ---
 # These define the absolute allowed range for any ML-proposed outlet temperature.
 # Use environment variables CLAMP_MIN_ABS and CLAMP_MAX_ABS to override defaults.
-CLAMP_MIN_ABS: float = float(os.getenv("CLAMP_MIN_ABS", "14.0"))
-CLAMP_MAX_ABS: float = float(os.getenv("CLAMP_MAX_ABS", "65.0"))
+CLAMP_MIN_ABS: float = float(os.getenv("CLAMP_MIN_ABS", "22.0"))
+CLAMP_MAX_ABS: float = float(os.getenv("CLAMP_MAX_ABS", "35.0"))
 
 # --- Multi-Lag Learning Configuration ---
 # Enable time-delayed learning for external heat sources (PV, fireplace, TV)
@@ -260,8 +261,8 @@ ML_HEATING_CONTROL_ENTITY_ID: str = os.getenv(
 # Core Thermal Properties (Priority 1 - Critical for Model Behavior)
 # UPDATED FOR CORRECTED PHYSICS - Previous values were calibrated for broken formula
 THERMAL_TIME_CONSTANT: float = float(os.getenv("THERMAL_TIME_CONSTANT", "4.0"))  # Building thermal response time (hours)
-HEAT_LOSS_COEFFICIENT: float = float(os.getenv("HEAT_LOSS_COEFFICIENT", "0.10"))  # Heat loss rate per degree difference (CORRECTED)
-OUTLET_EFFECTIVENESS: float = float(os.getenv("OUTLET_EFFECTIVENESS", "0.10"))     # Heat pump outlet efficiency (CORRECTED)
+HEAT_LOSS_COEFFICIENT: float = float(os.getenv("HEAT_LOSS_COEFFICIENT", "0.1608"))  # Heat loss rate per degree difference (CORRECTED)
+OUTLET_EFFECTIVENESS: float = float(os.getenv("OUTLET_EFFECTIVENESS", "0.599"))     # Heat pump outlet efficiency (CORRECTED)
 OUTDOOR_COUPLING: float = float(os.getenv("OUTDOOR_COUPLING", "0.3"))            # Outdoor temperature influence factor
 # THERMAL_BRIDGE_FACTOR removed in Phase 2: was not used in calculations
 
@@ -270,14 +271,14 @@ OUTDOOR_COUPLING: float = float(os.getenv("OUTDOOR_COUPLING", "0.3"))           
 # - PV: 0.001-0.01 °C/W (1-10°C per kW)
 # - Fireplace: 2-10°C (significant heating)  
 # - TV: 0.1-2°C (small but measurable)
-PV_HEAT_WEIGHT: float = float(os.getenv("PV_HEAT_WEIGHT", "0.002"))              # 2°C per kW solar heating
-FIREPLACE_HEAT_WEIGHT: float = float(os.getenv("FIREPLACE_HEAT_WEIGHT", "5.0"))  # 5°C direct contribution
+PV_HEAT_WEIGHT: float = float(os.getenv("PV_HEAT_WEIGHT", "0.0005"))              # 2°C per kW solar heating
+FIREPLACE_HEAT_WEIGHT: float = float(os.getenv("FIREPLACE_HEAT_WEIGHT", "1.0"))  # 5°C direct contribution
 TV_HEAT_WEIGHT: float = float(os.getenv("TV_HEAT_WEIGHT", "0.2"))                # 0.2°C electronics heating
 
 # Adaptive Learning Parameters (Priority 3 - Advanced Tuning)
 ADAPTIVE_LEARNING_RATE: float = float(os.getenv("ADAPTIVE_LEARNING_RATE", "0.05"))  # Base learning rate
 MIN_LEARNING_RATE: float = float(os.getenv("MIN_LEARNING_RATE", "0.01"))         # Minimum learning rate
-MAX_LEARNING_RATE: float = float(os.getenv("MAX_LEARNING_RATE", "0.2"))          # Maximum learning rate
+MAX_LEARNING_RATE: float = float(os.getenv("MAX_LEARNING_RATE", "0.3"))          # Maximum learning rate
 LEARNING_CONFIDENCE: float = float(os.getenv("LEARNING_CONFIDENCE", "3.0"))      # Initial learning confidence
 RECENT_ERRORS_WINDOW: int = int(os.getenv("RECENT_ERRORS_WINDOW", "10"))         # Error analysis window size
 

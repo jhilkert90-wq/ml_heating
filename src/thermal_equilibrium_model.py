@@ -436,7 +436,7 @@ class ThermalEquilibriumModel:
 
             # Bound confidence
             self.learning_confidence = max(
-                0.1, min(5.0, self.learning_confidence)
+                0.1, min(10.0, self.learning_confidence)
             )  # Higher upper bound for better learning
 
         # Perform parameter updates if we have enough recent data

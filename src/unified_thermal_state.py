@@ -38,7 +38,7 @@ class ThermalStateManager:
     With single thermal_state.json containing everything.
     """
     
-    def __init__(self, state_file: str = "/data/thermal_state.json"):
+    def __init__(self, state_file: str = "/opt/ml_heating/thermal_state.json"):
         self.state_file = state_file
         self.state = self._get_default_state()
         
@@ -297,17 +297,41 @@ class ThermalStateManager:
             self.state["learning_state"]["parameter_history"] = history[-250:]
     
     # === OPERATIONAL STATE MANAGEMENT ===
-    
-    def update_operational_state(self, **kwargs) -> None:
+
+    def update_operational_state(self, **kwargs):
         """Update operational state parameters."""
         operational = self.state["operational_state"]
-        
+
+        # Wenn last_run_features übergeben wird, korrekt verarbeiten
+        last_run_features = kwargs.get("last_run_features", None)
+        if last_run_features is not None:
+            import pandas as pd
+            # DataFrame oder Series in dict umwandeln
+            if isinstance(last_run_features, pd.DataFrame):
+                last_run_features = last_run_features.iloc[0].to_dict()
+            elif isinstance(last_run_features, pd.Series):
+                last_run_features = last_run_features.to_dict()
+
+            operational["last_run_features"] = last_run_features
+            # DEBUG: Zeige, wie last_run_features jetzt aussieht
+            print("DEBUG: last_run_features processed:", last_run_features)
+
+
+            # Automatisch Felder aus last_run_features übernehmen
+            auto_fields = ["outdoor_temp", "outlet_temp"]
+            for field in auto_fields:
+                kw_field = f"last_{field}"
+                if field in last_run_features:
+                    operational[kw_field] = float(last_run_features[field])
+
+        # Alle anderen übergebenen kwargs setzen (außer last_run_features)
         for key, value in kwargs.items():
-            if key in operational:
+            if key in operational and key != "last_run_features":
                 operational[key] = value
-        
+
+        # Immer die aktuelle Zeit als letzte Laufzeit speichern
         operational["last_run_time"] = datetime.now().isoformat()
-    
+
     def get_operational_state(self) -> Dict[str, Any]:
         """Get current operational state."""
         return self.state["operational_state"].copy()

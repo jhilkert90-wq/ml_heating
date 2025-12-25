@@ -29,11 +29,11 @@ class ThermalParameterConfig:
     # UPDATED FOR TDD COMPLIANCE - physically reasonable ranges with realistic heat balance
     DEFAULTS = {
         'thermal_time_constant': 4.0,      # hours - realistic for moderate insulation 
-        'heat_loss_coefficient': 1.2,      # 1/hour - increased for realistic heat balance (was 0.05)
-        'outlet_effectiveness': 0.49,      # dimensionless - adjusted for realistic outlets
-        'pv_heat_weight': 0.002,           # °C/W - 2°C per kW (TDD compliant: 0.001-0.01 range)
-        'fireplace_heat_weight': 5.0,      # °C - direct 5°C contribution (TDD compliant: 2-10°C range)
-        'tv_heat_weight': 0.4             # °C - 0.2°C for realistic TV contribution (1°C with 0.2 coefficient)
+        'heat_loss_coefficient': 0.1608,      # 1/hour - increased for realistic heat balance (was 0.05)
+        'outlet_effectiveness': 0.599,      # dimensionless - adjusted for realistic outlets
+        'pv_heat_weight': 0.0005,           # °C/W - 2°C per kW (TDD compliant: 0.001-0.01 range)
+        'fireplace_heat_weight': 1.0,      # °C - direct 5°C contribution (TDD compliant: 2-10°C range)
+        'tv_heat_weight': 0.2              # °C - 0.2°C for realistic TV contribution (1°C with 0.2 coefficient)
     }
     
     # Parameter bounds (min, max) for optimization and validation
@@ -41,8 +41,8 @@ class ThermalParameterConfig:
     # while preventing physically impossible values
     BOUNDS = {
         'thermal_time_constant': (3.0, 8.0),     # Hours - realistic building range
-        'heat_loss_coefficient': (0.002, 25),  # 1/hour - very low to high heat loss
-        'outlet_effectiveness': (0.01, 0.9),     # dimensionless - adjusted for new default
+        'heat_loss_coefficient': (0.002, 10),  # 1/hour - very low to high heat loss
+        'outlet_effectiveness': (0.01, 1.0),     # dimensionless - adjusted for new default
         'pv_heat_weight': (0.0001, 0.005),       # W/°C - minimal to moderate PV effect
         'fireplace_heat_weight': (0.01, 6.0),    # 1/°C - small to very large fireplace effect
         'tv_heat_weight': (0.05, 1.5)            # W/°C - small to moderate appliance effect

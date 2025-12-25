@@ -148,12 +148,12 @@ def validate_thermal_model():
         
         # Test monotonicity - higher outlet should mean higher equilibrium
         monotonic_check = []
-        outdoor_temp_test = 5.0  # Test outdoor temperature
-        for outlet_temp in [25, 30, 35, 40, 45, 50, 55, 60]:
+        outdoor_temp_test = 0.0  # Test outdoor temperature
+        for outlet_temp in [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]:
             equilibrium = thermal_model.predict_equilibrium_temperature(
                 outlet_temp=outlet_temp,
                 outdoor_temp=outdoor_temp_test,
-                current_indoor=21.0,  # Test indoor temperature
+                current_indoor=22.7,  # Test indoor temperature
                 pv_power=0,
                 fireplace_on=0,
                 tv_on=0,
@@ -204,8 +204,8 @@ def validate_thermal_model():
         
         # Simulate some prediction feedback
         test_context = {
-            'outlet_temp': 45.0,
-            'outdoor_temp': 5.0,
+            'outlet_temp': 29.0,
+            'outdoor_temp': 0.0,
             'pv_power': 0,
             'fireplace_on': 0,
             'tv_on': 0
@@ -216,7 +216,7 @@ def validate_thermal_model():
         # Simulate good predictions (should boost confidence)
         for _ in range(5):
             predicted = thermal_model.predict_equilibrium_temperature(
-                current_indoor=21.0,  # Default indoor temp for test
+                current_indoor=22.7,  # Default indoor temp for test
                 **test_context,
                 _suppress_logging=True
             )

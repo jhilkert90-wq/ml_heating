@@ -257,8 +257,8 @@ class EnhancedModelWrapper:
 
         # Get cycle time from config and validate
         cycle_minutes = config.CYCLE_INTERVAL_MINUTES
-        cycle_hours = cycle_minutes / 60.0
-
+        #cycle_hours = cycle_minutes / 60.0
+        cycle_hours = 3
         # Validate cycle time against reasonable limits (max 180min for good control)
         max_reasonable_cycle = 180  # 3 hours maximum for responsive control
         if cycle_minutes > max_reasonable_cycle:
@@ -615,7 +615,8 @@ class EnhancedModelWrapper:
 
             # Get cycle time and calculate cycle-aligned forecast
             cycle_minutes = config.CYCLE_INTERVAL_MINUTES
-            cycle_hours = cycle_minutes / 60.0
+            #cycle_hours = cycle_minutes / 60.0
+            cycle_hours = 3
             max_reasonable_cycle = 180
             if cycle_minutes > max_reasonable_cycle:
                 cycle_hours = max_reasonable_cycle / 60.0
@@ -859,7 +860,8 @@ class EnhancedModelWrapper:
                 )
 
             # TRAJECTORY-BASED DECISION: Check if target reachable within cycle time
-            cycle_hours = config.CYCLE_INTERVAL_MINUTES / 60.0
+            #cycle_hours = config.CYCLE_INTERVAL_MINUTES / 60.0
+            cycle_hours = 3
 
             # DEBUG: Log trajectory details for diagnosis
             trajectory_temps = trajectory.get("trajectory", [])
@@ -1010,7 +1012,7 @@ class EnhancedModelWrapper:
             # Adaptive scaling: combines your house's 15.0 factor with physics
             # For your house: (4.0 * 4.0) / 0.084 ≈ 15.0 (matches heat curve)
             if effectiveness > 0:
-                physics_scale = (time_constant * 4.0) / effectiveness
+                physics_scale = (time_constant) / effectiveness
             else:
                 physics_scale = 15.0  # Fallback to heat curve default
 
@@ -1026,8 +1028,8 @@ class EnhancedModelWrapper:
             correction = temp_error * physics_scale * urgency_multiplier
 
             # House-specific bounds (same as heat curve for compatibility)
-            max_heating = 10.0 / 4
-            max_cooling = -20.0 / 4
+            max_heating = 10.0
+            max_cooling = -20.0
             correction = max(max_cooling, min(max_heating, correction))
 
             # Apply correction to outlet temperature
@@ -1062,9 +1064,9 @@ class EnhancedModelWrapper:
             return (
                 0.0  # No pressure - target reachable in time (should not happen here)
             )
-        elif reaches_target_at <= cycle_hours * 2:
+        elif reaches_target_at <= cycle_hours * 1.5:
             return 0.3  # Low pressure - close to reachable
-        elif reaches_target_at <= cycle_hours * 4:
+        elif reaches_target_at <= cycle_hours * 2:
             return 0.6  # Medium pressure
         else:
             return 1.0  # High pressure - far from target
