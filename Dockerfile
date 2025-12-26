@@ -1,4 +1,5 @@
-FROM ghcr.io/home-assistant/base:python3.11-alpine
+FROM ghcr.io/home-assistant/aarch64-base-python:3.11-alpine3.18
+
 
 ARG BUILD_ARCH
 ARG BUILD_DATE
