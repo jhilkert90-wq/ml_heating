@@ -8,27 +8,21 @@ set -e
 echo "[INFO] Starting ML Heating Control Add-on..."
 
 # ----------------------------------------------------------------------
-# Detect Home Assistant environment
+# Home Assistant Add-on environment
 # ----------------------------------------------------------------------
-if [[ -f "/etc/services.d" ]] || [[ -n "${SUPERVISOR_TOKEN}" ]]; then
-    echo "[INFO] Running in Home Assistant Add-on environment"
+if [[ -z "${SUPERVISOR_TOKEN}" ]]; then
+    echo "[ERROR] Home Assistant Supervisor token not available!"
+    exit 1
+fi
 
-    # Use bashio if available for additional config handling
-    if command -v bashio &> /dev/null; then
-        echo "[INFO] bashio detected, initializing configuration..."
-        python3 /app/config_adapter.py
-    else
-        echo "[WARNING] bashio not available, continuing with environment variables"
-    fi
+echo "[INFO] Supervisor token detected, running in HA Add-on environment"
 
-    # Ensure Supervisor token is available
-    if [[ -z "${SUPERVISOR_TOKEN}" ]]; then
-        echo "[ERROR] Home Assistant Supervisor token not available!"
-        exit 1
-    fi
-else
-    echo "[INFO] Running in standalone/development mode"
-    export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN:-standalone_mode}"
+# ----------------------------------------------------------------------
+# Initialize configuration if bashio is available
+# ----------------------------------------------------------------------
+if command -v bashio &> /dev/null; then
+    echo "[INFO] bashio detected, initializing configuration..."
+    python3 /app/config_adapter.py
 fi
 
 # ----------------------------------------------------------------------
