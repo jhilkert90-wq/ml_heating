@@ -35,14 +35,7 @@ RUN apk add --no-cache \
     openblas-dev \
     lapack-dev
 
-# ------------------------------------------------------------------------------
-# bashio (HA addon support)
-# ------------------------------------------------------------------------------
-RUN curl -L -s \
-    https://github.com/hassio-addons/bashio/archive/v0.16.2.tar.gz \
-    | tar zx -C /tmp \
-    && mv /tmp/bashio-* /usr/lib/bashio \
-    && ln -s /usr/lib/bashio/bashio /usr/bin/bashio
+
 
 # ------------------------------------------------------------------------------
 # App
