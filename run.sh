@@ -1,50 +1,45 @@
 #!/bin/bash
-# ==============================================================================
-# ML Heating Control Add-on Entry Point Script (with Dashboard)
-# ==============================================================================
-
 set -e
 
 echo "[INFO] Starting ML Heating Control Add-on..."
 
 # ------------------------------------------------------------------------------
-# Detect Home Assistant Add-on environment
+# Home Assistant Add-on Environment Detection
 # ------------------------------------------------------------------------------
 if [[ -n "${SUPERVISOR_TOKEN}" ]]; then
-    echo "[INFO] Running in Home Assistant Add-on environment"
+    echo "[INFO] Home Assistant Add-on environment detected"
 
     if command -v bashio &> /dev/null; then
         echo "[INFO] Initializing configuration via bashio"
         python3 /app/config_adapter.py
     else
-        echo "[WARN] bashio not available, continuing without it"
+        echo "[WARNING] bashio not available"
     fi
 else
-    echo "[INFO] Running in standalone/development mode"
+    echo "[INFO] Standalone mode"
     export SUPERVISOR_TOKEN="standalone"
 fi
 
 # ------------------------------------------------------------------------------
-# Prepare data directories
+# Data directories
 # ------------------------------------------------------------------------------
 mkdir -p /data/{models,backups,logs,config}
 touch /data/logs/ml_heating.log
 
 # ------------------------------------------------------------------------------
-# Start ML Heating main loop (background)
+# Start ML backend (non-blocking)
 # ------------------------------------------------------------------------------
-echo "[INFO] Starting ML Heating core loop"
+echo "[INFO] Starting ML backend..."
 python3 -m src.main &
 
 # ------------------------------------------------------------------------------
-# Start Streamlit Dashboard (Ingress on port 3001)
+# Start Streamlit Dashboard (Ingress Port!)
 # ------------------------------------------------------------------------------
-echo "[INFO] Starting Streamlit dashboard on port 3001"
+echo "[INFO] Starting Dashboard on port 3001..."
 
-export STREAMLIT_SERVER_PORT=3001
-export STREAMLIT_SERVER_ADDRESS=0.0.0.0
-export STREAMLIT_SERVER_HEADLESS=true
-export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-export STREAMLIT_SERVER_BASE_URL_PATH="${HASSIO_INGRESS_PATH:-/}"
-
-exec streamlit run /app/dashboard/app.py
+exec streamlit run /app/dashboard/app.py \
+    --server.port=3001 \
+    --server.address=0.0.0.0 \
+    --server.enableCORS=false \
+    --server.enableXsrfProtection=false \
+    --server.headless=true
