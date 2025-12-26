@@ -1,4 +1,4 @@
-FROM python:3.11-alpine3.18
+FROM ghcr.io/home-assistant/base:python3.11-alpine
 
 ARG BUILD_ARCH
 ARG BUILD_DATE
