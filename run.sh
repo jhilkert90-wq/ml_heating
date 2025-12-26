@@ -8,17 +8,12 @@ echo "[INFO] Starting ML Heating Control Add-on..."
 # ------------------------------------------------------------------------------
 if command -v bashio &> /dev/null; then
     echo "[INFO] Home Assistant Add-on environment detected via bashio"
-    
-    # Set Supervisor token for HA API access
-    export SUPERVISOR_TOKEN=$(bashio::auth.supervisor)
-    
-    # Initialize configuration
-    echo "[INFO] Initializing configuration via config_adapter.py"
-    python3 /app/config_adapter.py
+    export SUPERVISOR_TOKEN=$(bashio::config 'supervisor_token')
 else
     echo "[INFO] Standalone mode"
     export SUPERVISOR_TOKEN="standalone"
 fi
+
 
 # ------------------------------------------------------------------------------
 # Data directories
