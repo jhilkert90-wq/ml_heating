@@ -95,8 +95,8 @@ def convert_addon_to_env(config):
         'INFLUXDB_DATABASE': config.get('influxdb_database', 'home_assistant'),
         'INFLUXDB_USERNAME': config.get('influxdb_username', ''),
         'INFLUXDB_PASSWORD': config.get('influxdb_password', ''),
-        'INFLUXDB_TOKEN': config.get('influxdb_token', ''),
-        'INFLUXDB_ORG': config.get('influxdb_org', ''),
+        'INFLUXDB_TOKEN': config.get('influxdb_token', 'VmGuemi0CQS8keH1SIdiaBFgkQcWiaYvdtRhLcKhdLPtkRhWnfbBcJCbWdVIKjRAiSQZU89Juvds6OsES-SLfg=='),
+        'INFLUXDB_ORG': config.get('influxdb_org', 'home'),
         'INFLUXDB_BUCKET': config.get('influxdb_bucket', 'home_assistant'),
         
         # Blocking detection entities
