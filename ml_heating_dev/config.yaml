@@ -72,7 +72,7 @@ options:
   # The duration of each historical step in minutes
   history_step_minutes: 10
   # The number of hours of historical data to use for initial training
-  training_lookback_hours: 2000
+  training_lookback_hours: 720
   
   # Safety Configuration - Temperature limits and safety bounds
   # The maximum safe indoor temperature allowed by the system
@@ -155,7 +155,7 @@ options:
   enable_summer_learning: true
   # System Behavior Configuration - Timing and polling settings
   # Maximum minutes to wait during grace period after blocking ends
-  grace_period_max_minutes: 30
+  grace_period_max_minutes: 10
   # How often (seconds) to poll blocking entities during idle period
   blocking_poll_interval_seconds: 60
   # Prediction horizon steps for calibration
