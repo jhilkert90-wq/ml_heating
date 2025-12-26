@@ -116,7 +116,7 @@ def main(args):
     """
     # Load environment variables and configure logging.
     load_dotenv()
-    log_level = logging.DEBUG if args.debug or config.DEBUG else logging.INFO
+    log_level = logging.DEBUG if args.debug or config.DEBUG else logging.DEBUG
     
     # Configure logging to ensure output goes to stdout for systemd capture
     import sys

@@ -45,7 +45,7 @@ HASS_HEADERS: dict[str, str] = {
 }
 
 INFLUX_URL: str = os.getenv("INFLUX_URL", "http://192.168.0.223:8089")
-INFLUX_TOKEN: str = os.getenv("INFLUX_TOKEN", "")
+INFLUX_TOKEN: str = os.getenv("INFLUX_TOKEN", "VmGuemi0CQS8keH1SIdiaBFgkQcWiaYvdtRhLcKhdLPtkRhWnfbBcJCbWdVIKjRAiSQZU89Juvds6OsES-SLfg==")
 INFLUX_ORG: str = os.getenv("INFLUX_ORG", "home")
 INFLUX_BUCKET: str = os.getenv("INFLUX_BUCKET", "home_assistant")
 

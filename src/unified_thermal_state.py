@@ -38,7 +38,7 @@ class ThermalStateManager:
     With single thermal_state.json containing everything.
     """
     
-    def __init__(self, state_file: str = "/opt/ml_heating/thermal_state.json"):
+    def __init__(self, state_file: str = "/data/thermal_state.json"):
         self.state_file = state_file
         self.state = self._get_default_state()
         
