@@ -5,7 +5,7 @@ echo "[INFO] Starting ML Heating Control Add-on..."
 
 # Set Supervisor token if running in HA addon
 if [ -n "$SUPERVISOR_TOKEN" ]; then
-    export HASS_URL="http://supervisor/core/api"
+    export HASS_URL="http://supervisor/core"
     echo "[INFO] Using Supervisor API at $HASS_URL"
 else
     echo "[ERROR] Supervisor token not available! Add-on must run in HA environment."
