@@ -20,6 +20,8 @@ privileged:
 apparmor: false
 hassio_api: true
 homeassistant_api: true
+environment:
+  SUPERVISOR_TOKEN: "INTERNAL"
 options:
   # Core Entity Configuration - Home Assistant Entity IDs
   # An input_number or sensor that holds the desired target indoor temperature
