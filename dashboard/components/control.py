@@ -1,78 +1,89 @@
 """
 ML Heating Dashboard - Control Component
 System control interface for ML heating management
-Uses Supervisor API for add-on control
 """
 
 import streamlit as st
 import json
 import os
-import requests
+import subprocess
 from datetime import datetime
 import sys
+import signal
 
 # Add app directory to Python path
 sys.path.append('/app')
 
-# Supervisor API configuration
-SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
-SUPERVISOR_API = "http://supervisor/core/api"
-ADDON_SLUG = "ml_heating"  # Dein Add-on-Slug
+ML_PID_FILE = '/data/config/ml_pid.txt'
+RECALIBRATE_FLAG = '/data/config/recalibrate_flag'
 
-HEADERS = {"Authorization": f"Bearer {SUPERVISOR_TOKEN}"}
 
-def call_supervisor_service(service: str):
-    """Call HA Supervisor API for the ML Heating Add-on"""
-    url = f"{SUPERVISOR_API}/addons/{ADDON_SLUG}/{service}"
-    try:
-        r = requests.post(url, headers=HEADERS, timeout=10)
-        if r.status_code in (200, 204):
-            return True, r.text or f"{service} executed successfully."
-        else:
-            return False, f"{service} failed: {r.status_code} {r.text}"
-    except Exception as e:
-        return False, str(e)
-
-# ----------------------------
-# System status and control
-# ----------------------------
 def get_ml_system_status():
-    """Check if ML system is running using Supervisor API"""
-    try:
-        url = f"{SUPERVISOR_API}/addons/{ADDON_SLUG}/info"
-        r = requests.get(url, headers=HEADERS, timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            return data.get("state") == "started"
-        return False
-    except Exception:
-        return False
+    """Check if ML system process is running"""
+    if os.path.exists(ML_PID_FILE):
+        try:
+            with open(ML_PID_FILE, 'r') as f:
+                pid = int(f.read().strip())
+            os.kill(pid, 0)  # check if process exists
+            return True
+        except Exception:
+            return False
+    return False
 
-def restart_ml_system():
-    return call_supervisor_service("restart")
-
-def stop_ml_system():
-    return call_supervisor_service("stop")
 
 def start_ml_system():
-    return call_supervisor_service("start")
+    """Start ML system in background"""
+    if get_ml_system_status():
+        return False, "ML system already running"
+    
+    # Start the ML process in background
+    process = subprocess.Popen(
+        ['python3', '/app/src/main.py'],
+        stdout=open('/data/logs/ml_heating.log', 'a'),
+        stderr=subprocess.STDOUT
+    )
+    # Save PID
+    with open(ML_PID_FILE, 'w') as f:
+        f.write(str(process.pid))
+    return True, f"ML system started with PID {process.pid}"
+
+
+def stop_ml_system():
+    """Stop ML system using PID"""
+    if not os.path.exists(ML_PID_FILE):
+        return False, "ML system not running"
+    
+    try:
+        with open(ML_PID_FILE, 'r') as f:
+            pid = int(f.read().strip())
+        os.kill(pid, signal.SIGTERM)
+        os.remove(ML_PID_FILE)
+        return True, "ML system stopped"
+    except Exception as e:
+        return False, f"Failed to stop ML system: {e}"
+
+
+def restart_ml_system():
+    """Restart ML system"""
+    stop_ml_system()
+    return start_ml_system()
+
 
 def trigger_model_recalibration():
-    """Trigger model recalibration by creating flag file and restarting add-on"""
+    """Trigger model recalibration"""
     try:
-        os.makedirs("/data/config", exist_ok=True)
-        with open('/data/config/recalibrate_flag', 'w') as f:
+        # Write recalibration flag
+        with open(RECALIBRATE_FLAG, 'w') as f:
             f.write(datetime.now().isoformat())
+        # Restart ML system
         success, output = restart_ml_system()
         return success, "Recalibration triggered. " + output
     except Exception as e:
         return False, str(e)
 
-# ----------------------------
-# Configuration handling
-# ----------------------------
+
 def load_current_config():
-    """Load current add-on configuration"""
+    """Load add-on configuration"""
     try:
         with open('/data/options.json', 'r') as f:
             return json.load(f)
@@ -80,52 +91,55 @@ def load_current_config():
         st.error(f"Error loading configuration: {e}")
         return {}
 
+
 def save_config_changes(config):
-    """Save configuration changes (requires add-on restart)"""
+    """Save configuration changes"""
     try:
-        os.makedirs("/data/config", exist_ok=True)
         with open('/data/config/pending_config.json', 'w') as f:
             json.dump(config, f, indent=2)
         return True, "Configuration saved. Restart add-on to apply changes."
     except Exception as e:
         return False, str(e)
 
-# ----------------------------
-# UI Components
-# ----------------------------
+
+# ------------------------------
+# Streamlit rendering functions
+# ------------------------------
+
 def render_system_controls():
+    """Render system control buttons"""
     st.subheader("🎛️ System Controls")
+    
     is_running = get_ml_system_status()
-
-    col1, col2, col3, col4 = st.columns(4)
-
+    col1, col2, col3 = st.columns(3)
+    
     with col1:
-        if st.button("🔄 Restart System", type="primary"):
+        if st.button("🔄 Restart System"):
             with st.spinner("Restarting ML system..."):
                 success, output = restart_ml_system()
                 if success:
-                    st.success("System restarted successfully!")
+                    st.success(output)
                 else:
-                    st.error(f"Restart failed: {output}")
-
+                    st.error(output)
+    
     with col2:
         if is_running:
-            if st.button("⏹️ Stop System", type="secondary"):
+            if st.button("⏹️ Stop System"):
                 with st.spinner("Stopping ML system..."):
                     success, output = stop_ml_system()
                     if success:
-                        st.success("System stopped successfully!")
+                        st.success(output)
                     else:
-                        st.error(f"Stop failed: {output}")
+                        st.error(output)
         else:
-            if st.button("▶️ Start System", type="primary"):
+            if st.button("▶️ Start System"):
                 with st.spinner("Starting ML system..."):
                     success, output = start_ml_system()
                     if success:
-                        st.success("System started successfully!")
+                        st.success(output)
                     else:
-                        st.error(f"Start failed: {output}")
-
+                        st.error(output)
+    
     with col3:
         if st.button("🔧 Recalibrate Model"):
             with st.spinner("Triggering model recalibration..."):
@@ -136,61 +150,18 @@ def render_system_controls():
                 else:
                     st.error(f"Recalibration failed: {output}")
 
-    with col4:
-        if st.button("📋 View Logs"):
-            st.session_state['show_logs'] = True
 
-def render_mode_controls():
-    st.subheader("🔀 Operating Mode")
-    current_mode = st.radio(
-        "Select operating mode:",
-        ["Active Mode", "Shadow Mode"],
-        help="""
-        - **Active Mode**: ML system controls heating directly
-        - **Shadow Mode**: ML system observes but doesn't control heating
-        """
-    )
-    if current_mode == "Shadow Mode":
-        st.info("**Shadow Mode**: Safe testing without affecting heating")
-    else:
-        st.success("**Active Mode**: ML system optimizes heating directly")
-    
-    if st.button("Apply Mode Change"):
-        st.warning("Mode changes require add-on configuration update and restart.")
-
-def render_manual_controls():
-    st.subheader("🌡️ Manual Override")
-    st.warning("⚠️ Use manual overrides carefully!")
-
-def render_log_viewer():
-    if st.session_state.get('show_logs', False):
-        st.subheader("📋 System Logs")
-        st.text("Log viewer functionality here...")
-
-def render_configuration_editor():
-    st.subheader("⚙️ Live Configuration")
-    config = load_current_config()
-    if not config:
-        st.error("Unable to load configuration")
-        return
-    st.info("Configuration changes require add-on restart to take effect.")
+# ------------------------------
+# Optional: other controls
+# ------------------------------
 
 def render_control():
+    """Main control page"""
     st.header("🎛️ System Control")
-    is_running = get_ml_system_status()
-    if is_running:
+    if get_ml_system_status():
         st.success("🟢 ML System Status: Running")
     else:
         st.error("🔴 ML System Status: Stopped")
     
     st.divider()
     render_system_controls()
-    st.divider()
-    render_mode_controls()
-    st.divider()
-    render_manual_controls()
-    st.divider()
-    render_configuration_editor()
-    if st.session_state.get('show_logs', False):
-        st.divider()
-        render_log_viewer()
