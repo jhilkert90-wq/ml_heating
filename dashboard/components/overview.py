@@ -181,14 +181,18 @@ def render_performance_trend():
         fig.update_layout(
             xaxis_title="Time",
             yaxis=dict(
-                title="Confidence",
-                titlefont=dict(color="#1f77b4"),
+                title=dict(
+                    text="Confidence",
+                    font=dict(color="#1f77b4")
+                ),
                 tickfont=dict(color="#1f77b4"),
                 range=[0, 1]
             ),
             yaxis2=dict(
-                title="MAE (°C)",
-                titlefont=dict(color="#ff7f0e"),
+                title=dict(
+                    text="MAE (°C)",
+                    font=dict(color="#ff7f0e")
+                ),
                 tickfont=dict(color="#ff7f0e"),
                 overlaying="y",
                 side="right",
@@ -201,6 +205,7 @@ def render_performance_trend():
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No performance data available yet. Data will appear after the ML system starts learning.")
+
 
 def render_system_status():
     """Render current system status"""
