@@ -3,10 +3,13 @@ set -e
 
 echo "[INFO] Starting ML Heating Control Add-on..."
 
-# Initialize configuration if bashio is available
-if command -v bashio &> /dev/null; then
-    echo "[INFO] bashio detected, initializing configuration..."
-    python3 /app/config_adapter.py
+# Set Supervisor token if running in HA addon
+if [ -n "$SUPERVISOR_TOKEN" ]; then
+    export HASS_URL="http://supervisor/core/api"
+    echo "[INFO] Using Supervisor API at $HASS_URL"
+else
+    echo "[ERROR] Supervisor token not available! Add-on must run in HA environment."
+    exit 1
 fi
 
 # Ensure data dirs exist
