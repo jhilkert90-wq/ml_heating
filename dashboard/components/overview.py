@@ -10,21 +10,17 @@ from datetime import datetime, timedelta
 import json
 import os
 import sys
+from streamlit.runtime.scriptrunner import RerunException
 
 # Add app directory to Python path
 sys.path.append('/app')
 
-# -----------------------------
-# Session State Initialization
-# -----------------------------
+# ---------------- Session State Initialization ----------------
 if 'refresh_counter' not in st.session_state:
-    st.session_state.refresh_counter = 0
+    st.session_state['refresh_counter'] = 0
 
-# -----------------------------
-# Load ML State
-# -----------------------------
+# ---------------- ML State ----------------
 def load_ml_state():
-    """Load ML system state if available"""
     try:
         if os.path.exists('/data/models/ml_state.pkl'):
             import pickle
@@ -34,11 +30,7 @@ def load_ml_state():
         st.error(f"Error loading ML state: {e}")
     return None
 
-# -----------------------------
-# System Metrics
-# -----------------------------
 def get_system_metrics():
-    """Get current system performance metrics"""
     state = load_ml_state()
     if state:
         return {
@@ -49,7 +41,6 @@ def get_system_metrics():
             'last_prediction': state.get('last_prediction', 0.0),
             'status': state.get('status', 'unknown')
         }
-    # Fallback demo data
     return {
         'confidence': 0.92,
         'mae': 0.15,
@@ -59,17 +50,13 @@ def get_system_metrics():
         'status': 'active'
     }
 
-# -----------------------------
-# Log Data
-# -----------------------------
+# ---------------- Log Data ----------------
 def get_recent_log_data():
-    """Parse recent log data for trends"""
     try:
-        log_file = '/data/logs/ml_heating.log'
-        if os.path.exists(log_file):
-            with open(log_file, 'r') as f:
+        if os.path.exists('/data/logs/ml_heating.log'):
+            with open('/data/logs/ml_heating.log', 'r') as f:
                 lines = f.readlines()[-100:]
-
+            
             log_data = []
             for line in lines:
                 if 'confidence:' in line and 'mae:' in line:
@@ -85,13 +72,12 @@ def get_recent_log_data():
                         })
                     except Exception:
                         continue
-
+            
             if log_data:
                 return pd.DataFrame(log_data)
     except Exception:
         pass
-
-    # Fallback demo data
+    
     now = datetime.now()
     demo_data = []
     for i in range(24):
@@ -100,85 +86,75 @@ def get_recent_log_data():
             'confidence': 0.85 + (0.15 * (i % 3) / 3),
             'mae': 0.12 + (0.08 * (i % 4) / 4)
         })
-
+    
     return pd.DataFrame(demo_data).sort_values('timestamp')
 
-# -----------------------------
-# Metric Cards
-# -----------------------------
+# ---------------- Metric Cards ----------------
 def render_metric_cards():
-    """Render system performance metric cards"""
     metrics = get_system_metrics()
     col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            "Confidence", 
+            f"{metrics['confidence']:.3f}", 
+            f"{metrics['confidence']-0.85:.3f}" if metrics['confidence'] != 0.85 else None
+        )
+    with col2:
+        st.metric(
+            "MAE (°C)", 
+            f"{metrics['mae']:.3f}", 
+            f"{0.2-metrics['mae']:.3f}" if metrics['mae'] != 0.2 else None
+        )
+    with col3:
+        st.metric(
+            "RMSE (°C)", 
+            f"{metrics['rmse']:.3f}", 
+            f"{0.25-metrics['rmse']:.3f}" if metrics['rmse'] != 0.25 else None
+        )
+    with col4:
+        st.metric(
+            "Learning Cycles", 
+            f"{metrics['cycle_count']:,}", 
+            f"+{metrics['cycle_count']-400}" if metrics['cycle_count'] > 400 else None
+        )
 
-    col1.metric(
-        "Confidence", f"{metrics['confidence']:.3f}",
-        f"{metrics['confidence']-0.85:.3f}" if metrics['confidence'] != 0.85 else None
-    )
-    col2.metric(
-        "MAE (°C)", f"{metrics['mae']:.3f}",
-        f"{0.2-metrics['mae']:.3f}" if metrics['mae'] != 0.2 else None
-    )
-    col3.metric(
-        "RMSE (°C)", f"{metrics['rmse']:.3f}",
-        f"{0.25-metrics['rmse']:.3f}" if metrics['rmse'] != 0.25 else None
-    )
-    col4.metric(
-        "Learning Cycles", f"{metrics['cycle_count']:,}",
-        f"+{metrics['cycle_count']-400}" if metrics['cycle_count'] > 400 else None
-    )
-
-# -----------------------------
-# Performance Trend
-# -----------------------------
+# ---------------- Performance Trend ----------------
 def render_performance_trend():
-    """Render performance trend chart"""
     st.subheader("Performance Trend")
     df = get_recent_log_data()
-
+    
     if not df.empty:
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            x=df['timestamp'], y=df['confidence'],
-            mode='lines+markers', name='Confidence',
-            line=dict(color='#1f77b4', width=2), yaxis='y'
+            x=df['timestamp'], y=df['confidence'], mode='lines+markers',
+            name='Confidence', line=dict(color='#1f77b4', width=2), yaxis='y'
         ))
         fig.add_trace(go.Scatter(
-            x=df['timestamp'], y=df['mae'],
-            mode='lines+markers', name='MAE (°C)',
-            line=dict(color='#ff7f0e', width=2), yaxis='y2'
+            x=df['timestamp'], y=df['mae'], mode='lines+markers',
+            name='MAE (°C)', line=dict(color='#ff7f0e', width=2), yaxis='y2'
         ))
-
+        
         fig.update_layout(
             xaxis_title="Time",
-            yaxis=dict(
-                title=dict(text="Confidence", font=dict(color="#1f77b4")),
-                tickfont=dict(color="#1f77b4"),
-                range=[0, 1]
-            ),
-            yaxis2=dict(
-                title=dict(text="MAE (°C)", font=dict(color="#ff7f0e")),
-                tickfont=dict(color="#ff7f0e"),
-                overlaying="y",
-                side="right",
-                range=[0, max(df['mae']) * 1.2]
-            ),
+            yaxis=dict(title="Confidence", title_font=dict(color="#1f77b4"),
+                       tickfont=dict(color="#1f77b4"), range=[0, 1]),
+            yaxis2=dict(title="MAE (°C)", title_font=dict(color="#ff7f0e"),
+                        tickfont=dict(color="#ff7f0e"), overlaying="y", side="right",
+                        range=[0, max(df['mae']) * 1.2]),
             hovermode='x unified',
             height=400
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
     else:
         st.info("No performance data available yet. Data will appear after the ML system starts learning.")
 
-# -----------------------------
-# System Status
-# -----------------------------
+# ---------------- System Status ----------------
 def render_system_status():
-    """Render current system status"""
     st.subheader("System Status")
     metrics = get_system_metrics()
     col1, col2 = st.columns(2)
-
+    
     with col1:
         status = metrics['status']
         if status == 'active':
@@ -189,17 +165,16 @@ def render_system_status():
             st.warning("🟠 ML System: Blocked (DHW/Defrost)")
         else:
             st.error("🔴 ML System: Inactive")
-
         if metrics['last_prediction'] > 0:
             st.info(f"🌡️ Last Prediction: {metrics['last_prediction']:.1f}°C")
-
+        
         dirs = ['/data/models', '/data/backups', '/data/logs']
         for directory in dirs:
             if os.path.exists(directory):
                 st.success(f"📁 {directory.split('/')[-1]}: {len(os.listdir(directory))} files")
             else:
                 st.warning(f"📁 {directory.split('/')[-1]}: Not found")
-
+    
     with col2:
         st.write("**Learning Progress**")
         cycle_count = metrics['cycle_count']
@@ -214,7 +189,7 @@ def render_system_status():
             progress = 1.0
         st.progress(progress)
         st.write(f"Cycle {cycle_count:,}")
-
+        
         if os.path.exists('/data/models/ml_model.pkl'):
             stat = os.stat('/data/models/ml_model.pkl')
             model_size = stat.st_size / 1024
@@ -224,16 +199,13 @@ def render_system_status():
         else:
             st.warning("💾 Model: Not found")
 
-# -----------------------------
-# Configuration Summary
-# -----------------------------
+# ---------------- Configuration ----------------
 def render_configuration_summary():
-    """Render current configuration summary"""
     st.subheader("Configuration")
     try:
         with open('/data/options.json', 'r') as f:
             config = json.load(f)
-
+        
         col1, col2 = st.columns(2)
         with col1:
             st.write("**Core Entities**")
@@ -250,7 +222,7 @@ def render_configuration_summary():
                     st.caption(f"`{value}`")
                 else:
                     st.error(f"❌ {label}")
-
+        
         with col2:
             st.write("**Learning Parameters**")
             st.write(f"Learning Rate: `{config.get('learning_rate', 0.01)}`")
@@ -262,21 +234,19 @@ def render_configuration_summary():
     except Exception as e:
         st.error(f"Configuration Error: {e}")
 
-# -----------------------------
-# Main Overview
-# -----------------------------
+# ---------------- Main Overview ----------------
 def render_overview():
-    """Main overview page"""
     st.header("📊 System Overview")
-
-    # Refresh button using session_state
+    
     if st.button("🔄 Refresh Data"):
-        st.session_state.refresh_counter += 1
-
+        st.session_state['refresh_counter'] += 1
+        raise RerunException(None)
+    
     render_metric_cards()
     st.divider()
     render_performance_trend()
     st.divider()
+    
     col1, col2 = st.columns(2)
     with col1:
         render_system_status()
