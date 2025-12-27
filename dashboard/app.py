@@ -9,7 +9,6 @@ import streamlit as st
 import os
 import sys
 from streamlit_option_menu import option_menu
-from streamlit.runtime.scriptrunner import RerunException
 
 # Add app directory to Python path
 sys.path.append('/app')
@@ -18,8 +17,12 @@ sys.path.append('/app')
 def setup_ingress_config():
     """Configure Streamlit for Home Assistant ingress support"""
     ingress_path = os.environ.get('HASSIO_INGRESS_PATH', '')
+    
+    # If running under ingress, configure Streamlit appropriately
     if ingress_path:
         st.write("<!-- Home Assistant Ingress Mode -->")
+        # Additional ingress-specific configuration can be added here
+    
     return ingress_path
 
 def is_ingress_mode():
@@ -52,7 +55,8 @@ def main():
     
     # Display ingress status for debugging
     if is_ingress_mode():
-        st.markdown("<!-- Running in Home Assistant Ingress Mode -->", unsafe_allow_html=True)
+        st.markdown("<!-- Running in Home Assistant Ingress Mode -->", 
+                   unsafe_allow_html=True)
     
     # Sidebar navigation
     with st.sidebar:
@@ -74,9 +78,11 @@ def main():
             }
         )
         
-        # Quick system status
+        # System status in sidebar
         st.divider()
         st.subheader("Quick Status")
+        
+        # Check system status
         try:
             if os.path.exists('/data/logs/ml_heating.log'):
                 st.success("🟢 ML System Active")
@@ -85,7 +91,7 @@ def main():
         except Exception:
             st.error("🔴 System Error")
         
-        # Data directories status
+        # Data directory status
         data_dirs = ['/data/models', '/data/backups', '/data/logs']
         for directory in data_dirs:
             if os.path.exists(directory):
@@ -115,7 +121,4 @@ def main():
         st.caption("🏠 Home Assistant Integration")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except RerunException:
-        pass  # Streamlit will handle the rerun
+    main()
