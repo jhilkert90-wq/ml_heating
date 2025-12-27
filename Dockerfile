@@ -1,6 +1,5 @@
 FROM ghcr.io/home-assistant/aarch64-base-python:3.11-alpine3.18
 
-
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
@@ -20,7 +19,7 @@ ENV LANG=C.UTF-8 \
     PYTHONUNBUFFERED=1
 
 # ------------------------------------------------------------------------------
-# System dependencies
+# System dependencies (inkl. supervisor)
 # ------------------------------------------------------------------------------
 RUN apk add --no-cache \
     bash \
@@ -33,9 +32,13 @@ RUN apk add --no-cache \
     linux-headers \
     gfortran \
     openblas-dev \
-    lapack-dev
+    lapack-dev \
+    supervisor
 
-
+# ------------------------------------------------------------------------------
+# Supervisor config directory
+# ------------------------------------------------------------------------------
+RUN mkdir -p /etc/supervisor.d
 
 # ------------------------------------------------------------------------------
 # App
