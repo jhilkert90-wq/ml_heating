@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/with-contenv bashio
 set -e
 
 echo "[INFO] Starting ML Heating Control Add-on..."
