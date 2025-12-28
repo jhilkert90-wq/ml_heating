@@ -1,30 +1,43 @@
 #!/usr/bin/with-contenv bashio
+
+# ==============================================================================
+# ML Heating Control Add-on Entry Point Script
+# ==============================================================================
+
 set -e
 
-echo "[INFO] Starting ML Heating Control Add-on..."
+# Configure logging
+bashio::log.info "Starting ML Heating Control Add-on..."
 
-# Set Supervisor token if running in HA addon
-if [ -n "$SUPERVISOR_TOKEN" ]; then
-    export HASS_URL="http://supervisor/core"
-    echo "[INFO] Using Supervisor API at $HASS_URL"
-else
-    echo "[ERROR] Supervisor token not available! Add-on must run in HA environment."
+# Initialize configuration
+bashio::log.info "Initializing configuration..."
+python3 /app/config_adapter.py
+
+# Check if required environment variables are set
+if [[ -z "${HASS_TOKEN}" ]]; then
+    bashio::log.fatal "Home Assistant Supervisor token not available"
     exit 1
 fi
 
-# Ensure data dirs exist
+# Setup data directories with proper permissions
 mkdir -p /data/{models,backups,logs,config}
+chown -R root:root /data
+
+# Import existing model if specified
+if bashio::config.true 'import_existing_model' && bashio::config.has_value 'existing_model_path'; then
+    MODEL_PATH=$(bashio::config 'existing_model_path')
+    if [[ -f "${MODEL_PATH}" ]]; then
+        bashio::log.info "Importing existing model from ${MODEL_PATH}..."
+        cp "${MODEL_PATH}" /data/models/ml_model.pkl
+        bashio::log.info "Model imported successfully"
+    else
+        bashio::log.warning "Specified model path does not exist: ${MODEL_PATH}"
+    fi
+fi
+
+# Create log file if it doesn't exist
 touch /data/logs/ml_heating.log
 
-# Start ML backend
-echo "[INFO] Starting ML backend..."
-python3 -m src.main &
-
-# Start Streamlit dashboard
-echo "[INFO] Starting Dashboard on port 3001..."
-exec streamlit run /app/dashboard/app.py \
-    --server.port=3001 \
-    --server.address=0.0.0.0 \
-    --server.enableCORS=false \
-    --server.enableXsrfProtection=false \
-    --server.headless=true
+# Start supervisor to manage multiple services
+bashio::log.info "Starting services with supervisor..."
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
