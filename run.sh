@@ -1,14 +1,23 @@
-#!/usr/bin/env bash
-
+#!/usr/bin/with-contenv bashio
 set -e
 
-echo "[INFO] Starting ML Heating Control Add-on..."
+bashio::log.info "Starting ML Heating Add-on..."
 
-# Initialize configuration
+# Init config
 python3 /app/config_adapter.py
 
-# Ensure directories
+# Ensure data dirs
 mkdir -p /data/{models,backups,logs,config}
 
-# Start supervisor (runs ML Heating + Dashboard)
-exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
+bashio::log.info "Starting ML Heating service..."
+python3 -m src.main &
+
+bashio::log.info "Starting Dashboard service..."
+python3 -m streamlit run /app/dashboard/app.py \
+    --server.port=3001 \
+    --server.address=0.0.0.0 \
+    --server.headless=true \
+    --server.enableCORS=false \
+    --server.enableXsrfProtection=false &
+
+wait
