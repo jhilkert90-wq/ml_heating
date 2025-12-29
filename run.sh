@@ -36,7 +36,8 @@ touch /data/logs/ml_heating.log
 # Optional: Start single service
 # =========================
 # Usage: run.sh [ml_heating|dashboard]
-SERVICE="$1"
+SERVICE="${1:-supervisor}"
+
 
 if [[ "$SERVICE" == "ml_heating" ]]; then
     bashio::log.info "Starting ML Heating service..."
