@@ -14,10 +14,10 @@ bashio::log.info "Initializing configuration..."
 python3 /app/config_adapter.py
 
 # Check if required environment variables are set
-if [[ -z "${HASS_TOKEN}" ]]; then
-    bashio::log.fatal "Home Assistant Supervisor token not available"
-    exit 1
-fi
+# if [[ -z "${HASS_TOKEN}" ]]; then
+#     bashio::log.fatal "Home Assistant Supervisor token not available"
+#     exit 1
+# fi
 
 # Setup data directories with proper permissions
 mkdir -p /data/{models,backups,logs,config}
